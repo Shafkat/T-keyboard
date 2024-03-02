@@ -18,6 +18,9 @@
 
 <h3 align = "left">Quick start:</h3>
 
+**CLI Flashing**  
+`python3 esptool/esptool.py --chip auto --port <dev_port> --baud 115200 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 80m --flash_size 4MB 0x0 <path_to_bin>`
+
 **USE Arduino IDE**
 
 1. Install the current upstream Arduino IDE at the 1.8 level or later. The current version is at the [Arduino website](http://www.arduino.cc/en/main/software).

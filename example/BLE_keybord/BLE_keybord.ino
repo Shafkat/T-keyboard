@@ -168,12 +168,12 @@ void setup()
         }
     }
 
-        TFT_099.DispColor(0, 0, TFT_WIDTH, TFT_HEIGHT, BLACK);
-    TFT_099.DispStr("version 1.0.0", 0, 2, WHITE, BLACK);
+    TFT_099.DispColor(0, 0, TFT_WIDTH, TFT_HEIGHT, BLACK);
+    TFT_099.DispStr("version 1.0.1", 0, 2, WHITE, BLACK);
     delay(3000);
 
     TFT_099.DispColor(0, 0, TFT_WIDTH, TFT_HEIGHT, BLACK);
-    TFT_099.DispStr("Wait bluetooth ......", 0, 2, WHITE, BLACK);
+    TFT_099.DispStr("Waiting to connect..", 0, 2, WHITE, BLACK);
 }
 
 
@@ -212,7 +212,8 @@ void loop()
             Serial.println();
             bleKeyboard.println();
         }
-        //BACKSPACE
+
+        // BACKSPACE
         if (keyPressed(4, 3)) {
             if (OffsetX < 8) {
                 OffsetX = 0;
@@ -223,11 +224,36 @@ void loop()
             TFT_099.DispColor(0, OffsetX, TFT_HIGH, TFT_WIDE, BLACK);
             bleKeyboard.press(KEY_BACKSPACE);
         }
-        //SHIFT
-        if (keyPressed(1, 6)) {
+
+        // SHIFT
+        if (keyPressed(1, 6)) 
+        {
             bleKeyboard.press(KEY_RIGHT_SHIFT);
         }
-        //alt+left shit, trigger ctrl+shift(Switch the input method)
+
+        // CMD KEY + Space key = Spotlight
+        if (alt_active && keyPressed(0, 5))
+        {
+            clear_sccreen();
+            TFT_099.DispStr("Spotlight", 0, 2, WHITE, BLACK);
+            display_connected = false;
+            bleKeyboard.press(KEY_LEFT_GUI);
+            bleKeyboard.press(' ');
+            alt_active = false;
+        }
+
+        // CMD KEY + h key = Homescreen
+        if (alt_active && keyPressed(3, 1))
+        {
+            clear_sccreen();
+            TFT_099.DispStr("Home Screen", 0, 2, WHITE, BLACK);
+            display_connected = false;
+            bleKeyboard.press(KEY_LEFT_GUI);
+            bleKeyboard.press('h');
+            alt_active = false;
+        }
+
+        // alt+left shift, trigger ctrl+shift(Switch the input method)
         if (keyActive(0, 4) && keyPressed(1, 6)) {
             bleKeyboard.press(KEY_RIGHT_CTRL);
             bleKeyboard.press(KEY_RIGHT_SHIFT);
@@ -238,7 +264,7 @@ void loop()
     } else {
         if (millis() - previousMillis_2 > display_Wait_blue_time ) {
             TFT_099.DispColor(0, 0, TFT_WIDTH, TFT_HEIGHT, BLACK);
-            TFT_099.DispStr("Wait bluetooth ......", 0, 2, WHITE, BLACK);
+            TFT_099.DispStr("Waiting to connect..", 0, 2, WHITE, BLACK);
             display_connected = true;
             previousMillis_2 = millis();
         }
@@ -260,8 +286,6 @@ void clear_sccreen()
 
 void readMatrix()
 {
-
-
     int delayTime = 0;
     // iterate the columns
     for (int colIndex = 0; colIndex < colCount; colIndex++) {
@@ -317,12 +341,13 @@ bool isPrintableKey(int colIndex, int rowIndex)
 
 void printMatrix()
 {
-
-    for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
-        for (int colIndex = 0; colIndex < colCount; colIndex++) {
+    for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) 
+    {
+        for (int colIndex = 0; colIndex < colCount; colIndex++) 
+        {
             // we only want to print if the key is pressed and it is a printable character
-            if (keyPressed(colIndex, rowIndex) && isPrintableKey(colIndex, rowIndex)) {
-
+            if (keyPressed(colIndex, rowIndex) && isPrintableKey(colIndex, rowIndex)) 
+            {
                 String toPrint;
                 if (symbolSelected) {
                     symbolSelected = false;
