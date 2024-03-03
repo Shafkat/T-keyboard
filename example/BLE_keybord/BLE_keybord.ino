@@ -1,21 +1,24 @@
+#include "Arduino.h"
+#include <SPI.h>
+#include "img.h"
+
+#include<TFT_GC9D01N.h>
+#include <BleKeyboard.h>
+
 #define TFT_HIGH  40
 #define TFT_WIDE 160
 #define GAP 8
 #define keyborad_BL_PIN  9
 
+#define SPACE_KEY 0,5
+#define H_KEY 3,1
+#define L_KEY 4,1
 
-#include "Arduino.h"
-#include <SPI.h>
-#include "img.h"
-#include<TFT_GC9D01N.h>
 TFT_GC9D01N_Class TFT_099;
-
-#include <BleKeyboard.h>
 BleKeyboard bleKeyboard("T-Keyboard", "ESPRESSIF", 100);
 
 byte rows[] = {0, 3, 18, 12, 11, 6, 7};
 const int rowCount = sizeof(rows) / sizeof(rows[0]);
-
 
 byte cols[] = {1, 4, 5, 19, 13};
 const int colCount = sizeof(cols) / sizeof(cols[0]);
@@ -26,7 +29,6 @@ bool changedValue[colCount][rowCount];
 
 char keyboard[colCount][rowCount];
 char keyboard_symbol[colCount][rowCount];
-
 
 bool symbolSelected;
 int OffsetX = 0;
@@ -71,7 +73,7 @@ void setup()
     keyboard[2][0] = 'r';
     keyboard[2][1] = 'g';
     keyboard[2][2] = 't';
-    keyboard[2][3] = NULL; // Right Shit
+    keyboard[2][3] = NULL; // Right Shift
     keyboard[2][4] = 'v';
     keyboard[2][5] = 'c';
     keyboard[2][6] = 'f';
@@ -158,7 +160,8 @@ void setup()
     delay(2000);
 
     //Flow of the logo
-    while (millis() < 6000) {
+    while (millis() < 6000) 
+    {
         for (int j = 0; j < 4; j++) {
             TFT_099.DrawImage(0, (160 - (flow_i + j * 55)), 40, 40, liligo_logo1);
         }
@@ -169,7 +172,7 @@ void setup()
     }
 
     TFT_099.DispColor(0, 0, TFT_WIDTH, TFT_HEIGHT, BLACK);
-    TFT_099.DispStr("version 1.0.1", 0, 2, WHITE, BLACK);
+    TFT_099.DispStr("Apple Vision Keyboard v1.0.2", 0, 2, WHITE, BLACK);
     delay(3000);
 
     TFT_099.DispColor(0, 0, TFT_WIDTH, TFT_HEIGHT, BLACK);
@@ -187,17 +190,21 @@ void loop()
         clear_sccreen();
     }
 
-    if (keyPressed(2, 3)) {  //Right Shit  ,Toggle case locking
+    if (keyPressed(2, 3)) {  //Right Shift  ,Toggle case locking
         case_locking = !case_locking;
     }
 
-    if (bleKeyboard.isConnected()) {
-        if (millis() - previousMillis_1  > backlight_off_time) {//No keyboard for 20 seconds. Turn off the screen backlight
+    if (bleKeyboard.isConnected()) 
+    {
+        if (millis() - previousMillis_1  > backlight_off_time) 
+        {
+            //No keyboard for 20 seconds. Turn off the screen backlight
             TFT_099.backlight(0);
             previousMillis_1 = millis();;
         }
 
-        if (display_connected) {
+        if (display_connected) 
+        {
             TFT_099.backlight(50);
             TFT_099.DispStr("Bluetooth connected", 0, 2, WHITE, BLACK);
             display_connected = false;
@@ -207,17 +214,21 @@ void loop()
         printMatrix();
 
         // key 3,3 is the enter key
-        if (keyPressed(3, 3)) {
+        if (keyPressed(3, 3)) 
+        {
             clear_sccreen();
             Serial.println();
             bleKeyboard.println();
         }
 
         // BACKSPACE
-        if (keyPressed(4, 3)) {
-            if (OffsetX < 8) {
+        if (keyPressed(4, 3)) 
+        {
+            if (OffsetX < 8) 
+            {
                 OffsetX = 0;
-            } else {
+            } else 
+            {
                 OffsetX = OffsetX - GAP;
             }
 
@@ -232,7 +243,7 @@ void loop()
         }
 
         // CMD KEY + Space key = Spotlight
-        if (alt_active && keyPressed(0, 5))
+        if (alt_active && keyPressed(SPACE_KEY))
         {
             clear_sccreen();
             TFT_099.DispStr("Spotlight", 0, 2, WHITE, BLACK);
@@ -243,7 +254,18 @@ void loop()
         }
 
         // CMD KEY + h key = Homescreen
-        if (alt_active && keyPressed(3, 1))
+        if (alt_active && keyPressed(H_KEY))
+        {
+            clear_sccreen();
+            TFT_099.DispStr("Home Screen", 0, 2, WHITE, BLACK);
+            display_connected = false;
+            bleKeyboard.press(KEY_LEFT_GUI);
+            bleKeyboard.press('h');
+            alt_active = false;
+        }
+
+        // CMD KEY + l key = Select URL
+        if (alt_active && keyPressed(L_KEY))
         {
             clear_sccreen();
             TFT_099.DispStr("Home Screen", 0, 2, WHITE, BLACK);
@@ -254,15 +276,18 @@ void loop()
         }
 
         // alt+left shift, trigger ctrl+shift(Switch the input method)
-        if (keyActive(0, 4) && keyPressed(1, 6)) {
+        if (keyActive(0, 4) && keyPressed(1, 6)) 
+        {
             bleKeyboard.press(KEY_RIGHT_CTRL);
             bleKeyboard.press(KEY_RIGHT_SHIFT);
         }
 
         bleKeyboard.releaseAll();
-
-    } else {
-        if (millis() - previousMillis_2 > display_Wait_blue_time ) {
+    } 
+    else 
+    {
+        if (millis() - previousMillis_2 > display_Wait_blue_time ) 
+        {
             TFT_099.DispColor(0, 0, TFT_WIDTH, TFT_HEIGHT, BLACK);
             TFT_099.DispStr("Waiting to connect..", 0, 2, WHITE, BLACK);
             display_connected = true;
@@ -320,7 +345,6 @@ void readMatrix()
         symbolSelected = true;
         // symbolSelected = !symbolSelected;
     }
-
 }
 
 bool keyPressed(int colIndex, int rowIndex)
@@ -349,23 +373,26 @@ void printMatrix()
             if (keyPressed(colIndex, rowIndex) && isPrintableKey(colIndex, rowIndex)) 
             {
                 String toPrint;
-                if (symbolSelected) {
+                if (symbolSelected) 
+                {
                     symbolSelected = false;
                     toPrint = String(keyboard_symbol[colIndex][rowIndex]);
-                } else {
+                } else 
+                {
                     toPrint = String(keyboard[colIndex][rowIndex]);
                 }
 
-                if (keyActive(0, 4)) {
+                if (keyActive(0, 4)) 
+                {
                     alt_active = true;
                     keys[0][4] = false;
                     return;
                 }
                 // keys 1,6 and 2,3 are Shift keys, so we want to upper case
-                if (case_locking || keyActive(1, 6)) {
+                if (case_locking || keyActive(1, 6)) 
+                {
                     toPrint.toUpperCase();
                 }
-
 
                 TFT_099.DispColor(0, OffsetX, TFT_HIGH, TFT_WIDE, BLACK);
                 char c[2];
@@ -375,14 +402,14 @@ void printMatrix()
                 Serial.print(toPrint);
                 bleKeyboard.print(toPrint);
                 OffsetX = OffsetX + GAP;
-                if (OffsetX > 160) {
+                if (OffsetX > 160) 
+                {
                     OffsetX = 0;
                     TFT_099.DispColor(0, 0, TFT_HIGH, TFT_WIDE, BLACK);
 
                 }
                 TFT_099.backlight(50);
                 previousMillis_1 = millis();
-
             }
         }
     }
