@@ -271,7 +271,7 @@ void loop()
             TFT_099.DispStr("Home Screen", 0, 2, WHITE, BLACK);
             display_connected = false;
             bleKeyboard.press(KEY_LEFT_GUI);
-            bleKeyboard.press('h');
+            bleKeyboard.press('l');
             alt_active = false;
         }
 
